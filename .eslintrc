@@ -1,8 +1,0 @@
-{
-  "extends": "airbnb-base"
-}
-
-rules {
-  //allow underscore dangle
-  "no-underscore-dangle": 0,
-}  
