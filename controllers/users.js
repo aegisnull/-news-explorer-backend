@@ -38,6 +38,12 @@ module.exports.getUser = (req, res, next) => {
     .catch(next);
 };
 
+module.exports.getUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => res.send(users))
+    .catch(next);
+};
+
 const { JWT_SECRET } = require("../config");
 
 module.exports.login = (req, res, next) => {
