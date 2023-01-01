@@ -31,10 +31,12 @@ module.exports.createUser = (req, res, next) => {
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(() => {
-      throw new error.NotFound(message.ITEM_NOT_FOUND);
+    .then((user) => {
+      if (!user) {
+        throw new error.NotFound(message.ITEM_NOT_FOUND);
+      }
+      res.send({ name: user.name, email: user.email });
     })
-    .then((user) => res.send({ name: user.name, email: user.email }))
     .catch(next);
 };
 

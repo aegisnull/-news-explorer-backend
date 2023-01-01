@@ -10,33 +10,20 @@ const message = require("../constants/ErrorMessages");
 
 const signIn = celebrate({
   body: Joi.object().keys({
-    email: Joi.string()
-      .required()
-      .email()
-      .error(new error.BadRequest(message.BAD_EMAIL)),
-    password: Joi.string()
-      .required()
-      .min(6)
-      .error(new error.BadRequest(message.SHORT_PASS)),
+    email: Joi.string().required().email().label(message.BAD_EMAIL),
+    password: Joi.string().required().min(6).label(message.SHORT_PASS),
   }),
 });
 
 const signUp = celebrate({
   body: Joi.object().keys({
-    email: Joi.string()
-      .required()
-      .email()
-      .error(new error.BadRequest(message.BAD_EMAIL)),
+    email: Joi.string().required().email().label(message.BAD_EMAIL),
     password: Joi.string()
-      .pattern(new RegExp(passValidator))
+      .pattern(passValidator)
       .required()
       .min(6)
-      .error(new error.BadRequest(message.BAD_PASS)),
-    name: Joi.string()
-      .required()
-      .min(2)
-      .max(30)
-      .error(new error.BadRequest(message.BAD_NAME)),
+      .label(message.BAD_PASS),
+    name: Joi.string().required().min(2).max(30).label(message.BAD_NAME),
   }),
 });
 
@@ -47,23 +34,16 @@ const createValid = celebrate({
     text: Joi.string().required(),
     date: Joi.string().required(),
     source: Joi.string().required(),
-    link: Joi.string()
-      .pattern(new RegExp(urlValidator))
-      .required()
-      .error(new error.BadRequest(message.BAD_URL)),
-    image: Joi.string()
-      .pattern(new RegExp(urlValidator))
-      .required()
-      .error(new error.BadRequest(message.BAD_URL)),
+    link: Joi.string().pattern(urlValidator).required().label(message.BAD_URL),
+    image: Joi.string().pattern(urlValidator).required().label(message.BAD_URL),
   }),
 });
 
 const idValid = celebrate({
   params: Joi.object().keys({
     id: Joi.string()
-      .alphanum()
-      .length(24)
-      .error(new error.BadRequest(message.BAD_ID)),
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .label(message.BAD_ID),
   }),
 });
 
