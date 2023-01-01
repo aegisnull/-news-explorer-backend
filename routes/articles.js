@@ -7,8 +7,8 @@ const {
 } = require("../controllers/articles");
 const { idValid, createValid } = require("../middlewares/celebrateValidators");
 
-router.get("/articles", getArticles);
-router.post("/articles", createValid, createArticle);
-router.delete("/articles/:id", idValid, delArticle);
+router.get("/", getArticles);
+router.post("/", createValid, createArticle);
+router.delete("/:id", idValid, delArticle);
 
 module.exports = router;

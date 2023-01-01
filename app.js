@@ -21,16 +21,28 @@ app.use(express.urlencoded({ extended: true }));
 const { errLogger, reqLogger } = require("./middlewares/logger");
 
 mongoose
-  .connect(DB_LINK, { useNewUrlParser: true })
+  .connect(DB_LINK, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+  })
   .then(() => console.log("Conectado a la base de datos"))
   .catch((err) => console.log(err));
 
-const router = require("./routes/routes");
+const usersRouter = require("./routes/users");
+const articlesRouter = require("./routes/articles");
+const signInRouter = require("./routes/signin");
+const signUpRouter = require("./routes/signup");
+
+app.use("/signup", signUpRouter);
+app.use("/signin", signInRouter);
+app.use("/users", usersRouter);
+app.use("/articles", articlesRouter);
 
 // set route for Non-existent address or localhost:3000
-app.use("/", (req, res) => {
-  res.status(404).send({ message: "Recurso solicitado no encontrado" });
-});
+//app.use("/", (req, res) => {
+//  res.status(404).send({ message: "Recurso solicitado no encontrado" });
+//});
 
 app.get("/crash-test", () => {
   setTimeout(() => {
@@ -39,10 +51,9 @@ app.get("/crash-test", () => {
 });
 
 app.use(helmet());
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(reqLogger);
-app.use(router);
 app.use(errLogger);
 
 app.listen(PORT, () => {
