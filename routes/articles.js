@@ -5,7 +5,7 @@ const {
   createArticle,
   delArticle,
 } = require("../controllers/articles");
-const { idValid, createValid } = require("../middlewares");
+const { idValid, createValid } = require("../middlewares/celebrateValidators");
 
 router.get("/articles", getArticles);
 router.post("/articles", createValid, createArticle);

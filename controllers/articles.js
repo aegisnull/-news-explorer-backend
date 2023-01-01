@@ -1,6 +1,6 @@
 const Article = require("../models/article");
-const error = require("../helpers");
-const message = require("../constants");
+const error = require("../helpers/Errors");
+const message = require("../constants/ErrorMessages");
 
 module.exports.getArticles = (req, res, next) => {
   Article.find({ owner: req.user._id })

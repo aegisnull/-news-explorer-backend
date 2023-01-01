@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 
-const error = require("../helpers");
-const message = require("../constants");
+const error = require("../helpers/Errors");
+const message = require("../constants/ErrorMessages");
 
 module.exports.createUser = (req, res, next) => {
   const { email, password, name } = req.body;

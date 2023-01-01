@@ -5,8 +5,8 @@ const urlValidator =
 const passValidator =
   /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}/;
 
-const error = require("../helpers");
-const message = require("../constants");
+const error = require("../helpers/Errors");
+const message = require("../constants/ErrorMessages");
 
 const signIn = celebrate({
   body: Joi.object().keys({
