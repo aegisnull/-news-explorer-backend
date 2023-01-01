@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const validator = require("validator");
+const mongoose = require('mongoose');
+const validator = require('validator');
 
 const articleSchema = new mongoose.Schema({
   keyword: {
@@ -26,7 +26,7 @@ const articleSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator: (v) => validator.isURL(v),
-      message: "Please enter a valid URL",
+      message: 'Please enter a valid URL',
     },
     required: true,
   },
@@ -34,7 +34,7 @@ const articleSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator: (v) => validator.isURL(v),
-      message: "Please enter a valid URL",
+      message: 'Please enter a valid URL',
     },
     required: true,
   },
@@ -45,4 +45,4 @@ const articleSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("article", articleSchema);
+module.exports = mongoose.model('article', articleSchema);

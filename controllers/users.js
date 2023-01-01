@@ -1,8 +1,8 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/user");
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 
-const error = require("../helpers/Errors");
-const message = require("../constants/ErrorMessages");
+const error = require('../helpers/Errors');
+const message = require('../constants/ErrorMessages');
 
 module.exports.createUser = (req, res, next) => {
   const { email, password, name } = req.body;
@@ -14,13 +14,13 @@ module.exports.createUser = (req, res, next) => {
       if (err.code === 11000) {
         next(new error.DBconflict(message.DB_CONFLICT));
       } else if (
-        err.message ===
-        "user validation failed: name: Formato de nombre no válido"
+        err.message
+        === 'user validation failed: name: Formato de nombre no válido'
       ) {
         next(new error.BadRequest(message.BAD_NAME));
       } else if (
-        err.message ===
-        "user validation failed: email: Formato de nombre no válido"
+        err.message
+        === 'user validation failed: email: Formato de nombre no válido'
       ) {
         next(new error.BadRequest(message.BAD_EMAIL));
       } else {
@@ -46,18 +46,18 @@ module.exports.getUsers = (req, res, next) => {
     .catch(next);
 };
 
-const { JWT_SECRET } = require("../config");
+const { JWT_SECRET } = require('../config');
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-        expiresIn: "7d",
+        expiresIn: '7d',
       });
       const { name } = user;
       res
-        .cookie("jwt", token, {
+        .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
         })

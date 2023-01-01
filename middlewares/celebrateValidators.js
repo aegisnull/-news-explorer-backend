@@ -1,12 +1,9 @@
-const { celebrate, Joi } = require("celebrate");
+const { celebrate, Joi } = require('celebrate');
 
-const urlValidator =
-  /http(s?):\/\/(www\.)?((\w|[a-яё]|-)+((\.(\w|[a-яё]|-)+){1,4})?\.(\w|[a-яё]|-)+)(:(\d{2,5}))?(\w|\/|\\)+#?/;
-const passValidator =
-  /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}/;
+const urlValidator = /http(s?):\/\/(www\.)?((\w|[a-яё]|-)+((\.(\w|[a-яё]|-)+){1,4})?\.(\w|[a-яё]|-)+)(:(\d{2,5}))?(\w|\/|\\)+#?/;
+const passValidator = /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{6,}/;
 
-const error = require("../helpers/Errors");
-const message = require("../constants/ErrorMessages");
+const message = require('../constants/ErrorMessages');
 
 const signIn = celebrate({
   body: Joi.object().keys({
@@ -23,7 +20,8 @@ const signUp = celebrate({
       .required()
       .min(6)
       .label(message.BAD_PASS),
-    name: Joi.string().required().min(2).max(30).label(message.BAD_NAME),
+    name: Joi.string().required().min(2).max(30)
+      .label(message.BAD_NAME),
   }),
 });
 
