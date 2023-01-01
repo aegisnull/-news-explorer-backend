@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 const { errLogger, reqLogger } = require("./middlewares/logger");
 
 mongoose
-  .connect(DB_LINK)
+  .connect(DB_LINK, { useNewUrlParser: true })
   .then(() => console.log("Conectado a la base de datos"))
   .catch((err) => console.log(err));
 
