@@ -51,8 +51,6 @@ module.exports.getUsers = (req, res, next) => {
     .catch(next);
 };
 
-const { JWT_SECRET } = require('../config');
-
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
