@@ -8,6 +8,6 @@ This repository contains the code for the backend of the project. The frontend c
 
 ## Usage
 
-The server is hosted on Google Cloud and can be accessed [luistellez.students.nomoredomainssbs.ru](https://luistellez.students.nomoredomainssbs.ru/).
+The server is hosted on Google Cloud and can be accessed [aegisnews.students.nomoredomainssbs.ru](https://aegisnews.students.nomoredomainssbs.ru/).
 
-the backend is hosted on Google Cloud and can be accessed [https://api.luistellez.students.nomoredomainssbs.ru/](https://api.luistellez.students.nomoredomainssbs.ru/).
+the backend is hosted on Google Cloud and can be accessed [https://api.aegisnews.students.nomoredomainssbs.ru/](https://api.aegisnews.students.nomoredomainssbs.ru/).
