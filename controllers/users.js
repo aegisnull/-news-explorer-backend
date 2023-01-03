@@ -55,15 +55,12 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findOne({ email, password })
     .then((user) => {
-      if (!user) {
-        throw new error.Unauthorized(message.UNAUTHORIZED);
-      }
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production ' ? JWT_SECRET : 'dev-secret',
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
         { expiresIn: '7d' }
       );
-      res.send({ token });
+      res.send({ ...user.toJSON(), token });
     })
-    .catch(next);
+    .catch(() => next(new error.Unauthorized(message.BAD_LOGIN)));
 };
