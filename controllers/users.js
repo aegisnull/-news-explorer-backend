@@ -7,31 +7,25 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const error = require('../helpers/Errors');
 const message = require('../constants/ErrorMessages');
 
-module.exports.createUser = (req, res, next) => {
-  const { email, password, name } = req.body;
-  bcrypt
-    .hash(password, 10)
-    .then(() =>
-      User.create({
-        email,
-        password,
-        name
-      })
-    )
-    .then(() => {
-      res.status(201).send({ name, email });
-    })
-    .catch((err) => {
-      if (err.code === 11000) {
-        next(new error.DBconflict(message.DB_CONFLICT));
-      } else if (err.message === 'user validation failed: name: Formato de nombre no válido') {
-        next(new error.BadRequest(message.BAD_NAME));
-      } else if (err.message === 'user validation failed: email: Formato de nombre no válido') {
-        next(new error.BadRequest(message.BAD_EMAIL));
-      } else {
-        next(new error.BadRequest(message.SHORT_PASS));
-      }
-    });
+const createToken = (user, secret, expiresIn) => {
+  const { email, name } = user;
+  return jwt.sign({ email, name }, secret, { expiresIn });
+};
+
+module.exports.createUser = async (req, res) => {
+  const user = new User(req.body);
+  try {
+    // Hash the password
+    user.password = await bcrypt.hash(user.password, 10);
+    // Save the user to the database
+    await user.save();
+    // Create a JSON web token
+    const token = createToken(user, JWT_SECRET, '7d');
+    // Return the name and email in the response
+    res.status(201).json({ name: user.name, email: user.email, token });
+  } catch (e) {
+    res.status(400).send(e);
+  }
 };
 
 module.exports.getUser = (req, res, next) => {
@@ -45,23 +39,29 @@ module.exports.getUser = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.getUsers = (req, res, next) => {
+module.exports.getUsers = (res, next) => {
   User.find({})
     .then((users) => res.send(users))
     .catch(next);
 };
 
-module.exports.login = (req, res, next) => {
+module.exports.login = async (req, res) => {
   const { email, password } = req.body;
-  return User.findOne({ email, password })
-    .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-        { expiresIn: '7d' }
-      );
-      res.send({ ...user.toJSON(), token });
-    })
-    .catch(() => next(new error.Unauthorized(message.BAD_LOGIN)));
+  if (!email || !password) {
+    return res.status(400).send({ message: 'Email and password are required' });
+  }
+  try {
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return res.status(404).send({ message: 'User not found' });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).send({ message: 'Invalid email or password' });
+    }
+    const token = createToken(user, JWT_SECRET, '7d');
+    res.status(200).json({ token });
+  } catch (e) {
+    res.status(400).send(e);
+  }
 };
-//
