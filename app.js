@@ -1,8 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
+
+const errorHandler = require('./middlewares/errorHandler.js');
+
+const limiter = require('./middlewares/limiter.js');
+const NotFoundErr = require('./errors/NotFoundErr.js');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
 
@@ -14,46 +21,37 @@ const { PORT, DB_LINK } = require('./config');
 /* express.json() is a method inbuilt in express to recognize the incoming Request as a JSON */
 app.use(express.json());
 
-/* urlencoded() method within express. This method is called as a middleware
-in your application using the code: app.use(express.urlencoded()); */
-app.use(express.urlencoded({ extended: true }));
-
-const { errLogger, reqLogger } = require('./middlewares/logger');
-
 mongoose
   .connect(DB_LINK, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
+    useFindAndModify: false
   })
   .then(() => console.log('Conectado a la base de datos'))
   .catch((err) => console.log(err));
 
-const usersRouter = require('./routes/users');
-const articlesRouter = require('./routes/articles');
-const signInRouter = require('./routes/signin');
-const signUpRouter = require('./routes/signup');
+app.use(limiter);
+app.use(helmet());
+app.use(requestLogger);
+app.use(bodyParser.json());
 
-app.use('/signup', signUpRouter);
-app.use('/signin', signInRouter);
-app.use('/users', usersRouter);
-app.use('/articles', articlesRouter);
+app.use('/', indexRoutes);
 
 /* set route for Non-existent address or localhost:3000 */
-app.use('/', (req, res) => {
+app.use('/', (res) => {
   res.status(404).send({ message: 'Recurso solicitado no encontrado' });
 });
+
+app.use(errorLogger);
+app.use(errors());
+app.use(errorHandler);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('El servidor va a caer');
   }, 0);
 });
-
-app.use(helmet());
-app.use(cookieParser());
-app.use(reqLogger);
-app.use(errLogger);
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);

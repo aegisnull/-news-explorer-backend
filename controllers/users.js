@@ -1,86 +1,52 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const User = require('../models/user.js');
+const ConflictErr = require('../errors/ConflictErr.js');
+const { reqErrors } = require('../utils/errorMessages.js');
 
-const { JWT_SECRET } = process.env;
+const { NODE_ENV, JWT_SECRET } = process.env;
 
-const error = require('../helpers/Errors');
-const message = require('../constants/ErrorMessages');
-
-const createToken = (user, expiresIn, secret) => {
-  const { email, name } = user;
-  return jwt.sign({ email, name }, secret, { expiresIn });
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        { expiresIn: '7d' }
+      );
+      res.send({ ...user.toJSON(), token });
+    })
+    .catch(next);
 };
 
-module.exports.createUser = async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    // Check if a user with the same email already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(409).send({ message: 'A user with the same email already exists' });
-    }
-
-    // Create a new user
-    const user = new User(req.body);
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-    user.password = hashedPassword;
-
-    // Save the new user to the database
-    await user.save();
-
-    // Create a JSON web token
-    const token = createToken(user, '7d', JWT_SECRET);
-    res.status(201).json({ user: user.toAuthJSON(), token });
-  } catch (e) {
-    res.status(400).send(e);
-  }
+module.exports.createUser = (req, res, next) => {
+  const { email, password, name } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hash) =>
+      User.create({
+        email,
+        password: hash,
+        name
+      })
+    )
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.code === reqErrors.conflict.MONGO_ERROR_CODE) {
+        const error = new ConflictErr(reqErrors.conflict.REGISTRATION_MESSAGE);
+        next(error);
+      }
+    });
 };
 
-module.exports.getUser = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      throw new error.NotFound(message.ITEM_NOT_FOUND);
-    }
-    res.send({ name: user.name, email: user.email });
-  } catch (e) {
-    next(e);
-  }
-};
-
-module.exports.getUsers = async (res, next) => {
-  try {
-    const users = await User.find({});
-    res.send(users);
-  } catch (e) {
-    next(e);
-  }
-};
-
-module.exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).send({ message: 'Email and password are required' });
-    }
-
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      return res.status(404).send({ message: 'User not found' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).send({ message: 'Invalid email or password' });
-    }
-
-    const token = createToken(user, '7d', JWT_SECRET);
-    res.status(200).json({ token });
-  } catch (e) {
-    res.status(400).send(e);
-  }
+module.exports.getUserInfo = (req, res, next) => {
+  User.findOne({ _id: req.user._id })
+    .then((user) => {
+      res.send({
+        email: user.email,
+        name: user.name
+      });
+    })
+    .catch(next);
 };
