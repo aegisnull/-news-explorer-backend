@@ -13,16 +13,22 @@ const createToken = (user, secret, expiresIn) => {
 };
 
 module.exports.createUser = async (req, res) => {
-  const user = new User(req.body);
+  const { email } = req.body;
   try {
+    // Check if a user with the same email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).send({ message: 'A user with the same email already exists' });
+    }
+    // Create a new user
+    const user = new User(req.body);
     // Hash the password
     user.password = await bcrypt.hash(user.password, 10);
-    // Save the user to the database
+    // Save the new user to the database
     await user.save();
     // Create a JSON web token
-    const token = createToken(user, JWT_SECRET, '7d');
-    // Return the name and email in the response
-    res.status(201).json({ name: user.name, email: user.email, token });
+    const token = createToken(user, process.env.SECRET, '1h');
+    res.status(201).json({ user: user.toAuthJSON(), token });
   } catch (e) {
     res.status(400).send(e);
   }
