@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const bcrypt = require('bcryptjs');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -8,7 +9,15 @@ const message = require('../constants/ErrorMessages');
 
 module.exports.createUser = (req, res, next) => {
   const { email, password, name } = req.body;
-  User.create({ email, password, name })
+  bcrypt
+    .hash(password, 10)
+    .then(() =>
+      User.create({
+        email,
+        password,
+        name
+      })
+    )
     .then(() => {
       res.status(201).send({ name, email });
     })
@@ -44,16 +53,14 @@ module.exports.getUsers = (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+  return User.findOne({ email, password })
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-      const { name } = user;
-      res
-        .cookie('jwt', token, {
-          maxAge: 3600000 * 24 * 7,
-          httpOnly: true
-        })
-        .send({ name, token });
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        { expiresIn: '7d' }
+      );
+      res.send({ ...user.toJSON(), token });
     })
     .catch(() => next(new error.Unauthorized(message.BAD_LOGIN)));
 };
