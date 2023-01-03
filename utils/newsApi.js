@@ -1,22 +1,21 @@
-// Constants declaration
-/* const NEWS_URL = "https://newsapi.org/v2"; */
-const PROXY_URL = 'https://nomoreparties.co/news/v2';
-const API_KEY = 'ed4390ffc54146c7a2ff5ea1673c8b01';
 const https = require('https');
-const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000).toDateString();
-const today = new Date().toDateString();
 
-const getUrl = (query) => {
-  return fetch(
-    `${PROXY_URL}/everything?q=${query}&from=${sevenDaysAgo}&to=${today}&pageSize=100&apiKey=${API_KEY}`,
-    {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json'
-      }
-    }
-  );
+const WeekInMs = 7 * 24 * 60 * 60 * 1000;
+const options = {
+  headers: {
+    'User-Agent': 'Mozilla/5.0',
+    Authorization: 'Bearer ed4390ffc54146c7a2ff5ea1673c8b01',
+  },
 };
+const NewsApiConfig = {
+  baseUrl: 'https://nomoreparties.co/news/v2/everything?language=en&pageSize=100',
+  headers: {
+    Authorization: 'Bearer ed4390ffc54146c7a2ff5ea1673c8b01',
+  },
+};
+const today = () => new Date().toISOString();
+const sevenDaysAgo = () => new Date(Date.now() - WeekInMs).toISOString();
+const getUrl = (query) => `${NewsApiConfig.baseUrl}&from=${sevenDaysAgo()}to=${today()}&q=${query}`;
 
 module.exports.getNews = (req, res) => {
   https
@@ -33,6 +32,6 @@ module.exports.getNews = (req, res) => {
       });
     })
     .on('error', (err) => {
-      console.log('Error: ' + err.message);
+      console.log(`Error: ${err.message}`);
     });
 };

@@ -1,9 +1,9 @@
 const indexRoutes = require('express').Router();
-const authRoutes = require('./auth.js');
-const userRoutes = require('./users.js');
-const newsRoutes = require('./news.js');
-const articleRoutes = require('./articles.js');
-const auth = require('../middlewares/auth.js');
+const authRoutes = require('./auth');
+const userRoutes = require('./users');
+const newsRoutes = require('./news');
+const articleRoutes = require('./articles');
+const auth = require('../middlewares/auth');
 
 indexRoutes.use('/', newsRoutes);
 indexRoutes.use('/', authRoutes);

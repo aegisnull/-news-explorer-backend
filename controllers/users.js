@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user.js');
-const ConflictErr = require('../errors/ConflictErr.js');
-const { reqErrors } = require('../utils/errorMessages.js');
+const User = require('../models/user');
+const ConflictErr = require('../errors/ConflictErr');
+const { reqErrors } = require('../utils/errorMessages');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -13,7 +13,7 @@ module.exports.login = (req, res, next) => {
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-        { expiresIn: '7d' }
+        { expiresIn: '7d' },
       );
       res.send({ ...user.toJSON(), token });
     })
@@ -24,13 +24,11 @@ module.exports.createUser = (req, res, next) => {
   const { email, password, name } = req.body;
   bcrypt
     .hash(password, 10)
-    .then((hash) =>
-      User.create({
-        email,
-        password: hash,
-        name
-      })
-    )
+    .then((hash) => User.create({
+      email,
+      password: hash,
+      name,
+    }))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.code === reqErrors.conflict.MONGO_ERROR_CODE) {
@@ -45,7 +43,7 @@ module.exports.getUserInfo = (req, res, next) => {
     .then((user) => {
       res.send({
         email: user.email,
-        name: user.name
+        name: user.name,
       });
     })
     .catch(next);

@@ -5,7 +5,7 @@ module.exports = (err, res, next) => {
     message = 'ID invalida';
   }
   res.status(statusCode).send({
-    message: statusCode === 500 ? 'Ocurrió un error en el servidor' : message
+    message: statusCode === 500 ? 'Ocurrió un error en el servidor' : message,
   });
   next();
 };

@@ -5,10 +5,11 @@ const { errors } = require('celebrate');
 const cors = require('cors');
 const helmet = require('helmet');
 
-const errorHandler = require('./middlewares/errorHandler.js');
+const errorHandler = require('./middlewares/errorHandler');
 
-const limiter = require('./middlewares/limiter.js');
-const NotFoundErr = require('./errors/NotFoundErr.js');
+const limiter = require('./middlewares/limiter');
+const indexRoutes = require('./routes/index');
+const NotFoundErr = require('./errors/NotFoundErr');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
@@ -26,7 +27,7 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
-    useFindAndModify: false
+    useFindAndModify: false,
   })
   .then(() => console.log('Conectado a la base de datos'))
   .catch((err) => console.log(err));
@@ -39,8 +40,8 @@ app.use(bodyParser.json());
 app.use('/', indexRoutes);
 
 /* set route for Non-existent address or localhost:3000 */
-app.use('/', (res) => {
-  res.status(404).send({ message: 'Recurso solicitado no encontrado' });
+app.all('/*', () => {
+  throw new NotFoundErr('Recurso solicitado no encontrado');
 });
 
 app.use(errorLogger);

@@ -1,7 +1,7 @@
 const articleRoutes = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 
-const { getSavedArticles, postArticle, deleteSavedArticle } = require('../controllers/articles.js');
+const { getSavedArticles, postArticle, deleteSavedArticle } = require('../controllers/articles');
 
 articleRoutes.get('/articles', getSavedArticles);
 
@@ -15,20 +15,20 @@ articleRoutes.post(
       date: Joi.string().required(),
       source: Joi.string().required(),
       link: Joi.string().required(),
-      image: Joi.string().required()
-    })
+      image: Joi.string().required(),
+    }),
   }),
-  postArticle
+  postArticle,
 );
 
 articleRoutes.delete(
   '/articles/:_id',
   celebrate({
     params: Joi.object().keys({
-      _id: Joi.string().alphanum().length(24)
-    })
+      _id: Joi.string().alphanum().length(24),
+    }),
   }),
-  deleteSavedArticle
+  deleteSavedArticle,
 );
 
 module.exports = articleRoutes;

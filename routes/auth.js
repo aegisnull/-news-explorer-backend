@@ -1,17 +1,17 @@
 const authRoutes = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 
-const { login, createUser } = require('../controllers/users.js');
+const { login, createUser } = require('../controllers/users');
 
 authRoutes.post(
   '/signin',
   celebrate({
     body: Joi.object().keys({
       email: Joi.string().required().email(),
-      password: Joi.string().trim(true).required()
-    })
+      password: Joi.string().trim(true).required(),
+    }),
   }),
-  login
+  login,
 );
 
 authRoutes.post(
@@ -20,10 +20,11 @@ authRoutes.post(
     body: Joi.object().keys({
       email: Joi.string().required().email(),
       password: Joi.string().trim(true).required(),
-      name: Joi.string().trim(true).min(2).max(30).required()
-    })
+      name: Joi.string().trim(true).min(2).max(30)
+        .required(),
+    }),
   }),
-  createUser
+  createUser,
 );
 
 module.exports = authRoutes;

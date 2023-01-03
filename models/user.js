@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { isEmail } = require('../utils/validate.js');
-const NotFoundErr = require('../errors/NotFoundErr.js');
+const { isEmail } = require('../utils/validate');
+const NotFoundErr = require('../errors/NotFoundErr');
 const { reqErrors, validationErrors } = require('../utils/errorMessages');
 
 const userSchema = new mongoose.Schema({
@@ -9,19 +9,19 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: [isEmail, validationErrors.email.EMAIL_MESSAGE],
-    unique: true
+    unique: true,
   },
   password: {
     type: String,
     required: true,
-    select: false
+    select: false,
   },
   name: {
     type: String,
     required: true,
     minlength: 2,
-    maxlength: 30
-  }
+    maxlength: 30,
+  },
 });
 
 userSchema.statics.findUserByCredentials = function findUser(email, password) {
