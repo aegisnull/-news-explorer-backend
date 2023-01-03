@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const bcrypt = require('bcryptjs');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -9,15 +8,11 @@ const message = require('../constants/ErrorMessages');
 
 module.exports.createUser = (req, res, next) => {
   const { email, password, name } = req.body;
-  bcrypt
-    .hash(password, 10)
-    .then((hash) =>
-      User.create({
-        email,
-        password: hash,
-        name
-      })
-    )
+  User.create({
+    email,
+    password,
+    name
+  })
     .then(() => {
       res.status(201).send({ name, email });
     })
