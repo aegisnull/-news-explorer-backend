@@ -5,5 +5,5 @@ const DB_LINK = 'mongodb://localhost:27017/NewsExplorerDB';
 
 module.exports = {
   PORT,
-  DB_LINK
+  DB_LINK,
 };

@@ -1,8 +1,8 @@
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const bcrypt = require('bcryptjs');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { JWT_SECRET } = process.env;
 
 const error = require('../helpers/Errors');
 const message = require('../constants/ErrorMessages');
@@ -12,23 +12,27 @@ const createToken = (user, secret, expiresIn) => {
   return jwt.sign({ email, name }, secret, { expiresIn });
 };
 
-module.exports.createUser = async (req, res) => {
+module.exports.createUser = (req, res) => {
   const { email } = req.body;
   try {
     // Check if a user with the same email already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(409).send({ message: 'A user with the same email already exists' });
-    }
-    // Create a new user
-    const user = new User(req.body);
-    // Hash the password
-    user.password = await bcrypt.hash(user.password, 10);
-    // Save the new user to the database
-    await user.save();
-    // Create a JSON web token
-    const token = createToken(user, process.env.SECRET, '1h');
-    res.status(201).json({ user: user.toAuthJSON(), token });
+    User.findOne({ email }).then((existingUser) => {
+      if (existingUser) {
+        return res.status(409).send({ message: 'A user with the same email already exists' });
+      }
+      // Create a new user
+      const user = new User(req.body);
+      // Hash the password
+      bcrypt.hash(user.password, 10).then((hashedPassword) => {
+        user.password = hashedPassword;
+        // Save the new user to the database
+        user.save().then(() => {
+          // Create a JSON web token
+          const token = createToken(user, JWT_SECRET, '7d');
+          res.status(201).json({ user: user.toAuthJSON(), token });
+        });
+      });
+    });
   } catch (e) {
     res.status(400).send(e);
   }
