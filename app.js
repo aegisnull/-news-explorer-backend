@@ -27,7 +27,7 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
-    useFindAndModify: false,
+    useFindAndModify: false
   })
   .then(() => console.log('Conectado a la base de datos'))
   .catch((err) => console.log(err));
@@ -47,12 +47,6 @@ app.all('/*', () => {
 app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
-
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('El servidor va a caer');
-  }, 0);
-});
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
