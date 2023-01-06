@@ -10,7 +10,7 @@
 
 # production
 /build
-#.env
+.env
 error.log
 request.log
 
