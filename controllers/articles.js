@@ -9,10 +9,20 @@ module.exports.getSavedArticles = (req, res, next) => {
     .catch(next);
 };
 
+module.exports.verifyArticle = (req, res, next) => {
+  Article.find({ owner: req.user._id, title: req.body.title })
+    .then((article) => {
+      if (article.length === 0) {
+        res.send({ message: 'Article not found' });
+      } else {
+        res.send({ message: 'Article found' });
+      }
+    })
+    .catch(next);
+};
+
 module.exports.postArticle = (req, res, next) => {
-  const {
-    keyword, title, text, date, source, link, image,
-  } = req.body;
+  const { keyword, title, text, date, source, link, image, id } = req.body;
 
   Article.create({
     keyword,
@@ -22,7 +32,8 @@ module.exports.postArticle = (req, res, next) => {
     source,
     link,
     image,
-    owner: req.user._id,
+    id,
+    owner: req.user._id
   })
     .then((article) => res.send(article))
     .catch((err) => {
