@@ -5,7 +5,7 @@ const {
   getSavedArticles,
   postArticle,
   deleteSavedArticle,
-  verifyArticle
+  verifyArticle,
 } = require('../controllers/articles');
 
 articleRoutes.get('/articles', getSavedArticles);
@@ -20,30 +20,30 @@ articleRoutes.post(
       date: Joi.string().required(),
       source: Joi.string().required(),
       link: Joi.string().required(),
-      image: Joi.string().required()
-    })
+      image: Joi.string().required(),
+    }),
   }),
-  postArticle
+  postArticle,
 );
 
 articleRoutes.delete(
   '/articles/:_id',
   celebrate({
     params: Joi.object().keys({
-      _id: Joi.string().alphanum().length(24)
-    })
+      _id: Joi.string().alphanum().length(24),
+    }),
   }),
-  deleteSavedArticle
+  deleteSavedArticle,
 );
 
 articleRoutes.post(
   '/articles/compare',
   celebrate({
     body: Joi.object().keys({
-      title: Joi.string().required()
-    })
+      title: Joi.string().required(),
+    }),
   }),
-  verifyArticle
+  verifyArticle,
 );
 
 module.exports = articleRoutes;
