@@ -1,9 +1,9 @@
 require('dotenv').config();
 
-const PORT = process.env.PORT || 3000;
-const DB_LINK = 'mongodb://localhost:27017/NewsExplorer_DB';
+const PORT = process.env.PORT;
+const DB_LINK = process.env.DB_LINK;
 
 module.exports = {
   PORT,
-  DB_LINK,
+  DB_LINK
 };
