@@ -1,14 +1,15 @@
+const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
-const cors = require('cors');
 const helmet = require('helmet');
+require('dotenv').config();
 
 const errorHandler = require('./middlewares/errorHandler');
 
 const limiter = require('./middlewares/limiter');
 const indexRoutes = require('./routes/index');
+const AuthRoutes = require('./routes/auth');
 const NotFoundErr = require('./errors/NotFoundErr');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
@@ -18,26 +19,15 @@ const app = express();
 app.use(cors());
 app.options('*', cors()); /* habilitar las solicitudes de todas las rutas */
 
-const { PORT, DB_LINK } = require('./config');
 /* express.json() is a method inbuilt in express to recognize the incoming Request as a JSON */
 app.use(express.json());
-
-mongoose
-  .connect(DB_LINK, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-  })
-  .then(() => console.log('Conectado a la base de datos'))
-  .catch((err) => console.log(err));
 
 app.use(limiter);
 app.use(helmet());
 app.use(requestLogger);
-app.use(bodyParser.json());
 
 app.use('/', indexRoutes);
+app.use('/', AuthRoutes);
 
 /* set route for Non-existent address or localhost:3000 */
 app.all('/*', () => {
@@ -48,6 +38,15 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.DB_LINK);
+  } catch (error) {
+    console.log('Failed to connect to MongoDB', error);
+  }
+};
+
+app.listen(process.env.PORT, () => {
+  console.log(`Server is listening on port ${process.env.PORT}`);
+  connectDB();
 });
